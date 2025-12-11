@@ -1,120 +1,89 @@
-# Deploy Java Spring Boot Apps to Amazon Cloud (AWS)
+# 🚀 Spring Boot Employee Directory (AWS Parameter Store Entegrasyonlu)
 
-### Full Stack Cloud Deployment with AWS, Java, Spring Boot, MySQL  
+### Sunucu Taraflı İşleme (Server-Side Rendering) kullanılan bu proje, AWS Parameter Store ile hassas veritabanı bağlantı bilgilerini güvenli bir şekilde yöneten bir Çalışan Yönetim Sistemi (CRUD) uygulamasıdır.
 
----
+## 🎯 Proje Amacı
 
-- Bu proje, **Java Spring Boot** ile geliştirilen bir **CRUD** uygulamasının **Amazon Web Services (AWS)** platformunda canlıya alınmasını içermektedir. Proje kapsamında AWS’nin farklı servisleri kullanılmış, veritabanı olarak **MySQL** tercih edilmiştir.  
+Bu uygulama, temel çalışan kayıtlarının (Ad, Soyad, E-posta) web arayüzü üzerinden yönetilmesini (Oluşturma, Okuma, Güncelleme, Silme - CRUD) sağlar. Projenin teknik odak noktası, çalışan verilerini yönetmek ve hassas veritabanı kimlik bilgilerini (**MySQL**) güvenli bir şekilde **AWS Parameter Store** üzerinden çekerek **Cloud altyapısıyla entegrasyon** yetkinliğini göstermektir. Proje, katmanlı mimari ve temiz kodlama prensipleriyle tasarlanmıştır.
 
-- AWS üzerinde bulut altyapısının kurulumu gerçekleştirilmiş, uygulama **Elastic Beanstalk** kullanılarak dağıtılmıştır. MySQL veritabanı AWS **RDS** üzerinde yapılandırılmıştır. Parametre yönetimi için **AWS Parameter Store**, kullanıcı dostu bir domain için ise **Route 53** kullanılmıştır.  
+## ⚙️ Kullanılan Temel Teknolojiler
 
----
+| Kategori | Teknoloji | Rolü | 
+ | ----- | ----- | ----- | 
+| **Backend Çekirdek** | **Spring Boot 3.4.0**, **Java 17** | Uygulamanın temel iş mantığı ve API servisleri. | 
+| **Frontend** | **Thymeleaf**, **Bootstrap 5.2.2** | Sunucu tarafında dinamik HTML sayfaları oluşturma ve modern, duyarlı arayüz tasarımı. | 
+| **Veritabanı** | **MySQL**, **Spring Data JPA** | Çalışan verilerinin depolanması ve ORM (Object-Relational Mapping) ile veri erişimi. | 
+| **Cloud Entegrasyonu** | **AWS Parameter Store** | Hassas veritabanı bağlantı bilgilerini güvenli bir şekilde yükleme. | 
+| **Araçlar** | **Maven**, **Spring DevTools** | Proje bağımlılık yönetimi ve hızlı yeniden yükleme. | 
 
-## 1. Proje Hakkında (Overview)  
+## 🏗️ Proje Mimarisi
 
-- **Kullanılan Teknolojiler**:  
-   - Backend: Java 17, Spring Boot  
-   - Database: MySQL (Workbench ile oluşturuldu)  
-   - Cloud Services: AWS Elastic Beanstalk, AWS RDS, AWS Route 53  
+Uygulama, temiz ve bakımı kolay bir yapı sağlayan geleneksel **Katmanlı Mimari** kullanır:
 
-- **Kullanılan Araçlar**:  
-   - IDE: IntelliJ IDEA  
-   - Maven Lifecycle: Clean, Package (Jar dosyası oluşturuldu)  
-   - Database Management: MySQL Workbench  
+1. **Controller:** HTTP isteklerini yönetir ve Thymeleaf şablonlarını kullanarak sunucu tarafından render edilen (SSR) sayfaları döndürür.
 
-- **AWS Servisleri**:  
-   - **Elastic Beanstalk**: Uygulama sunucusu olarak kullanıldı.  
-   - **RDS (Relational Database Service)**: Veritabanı oluşturuldu ve yönetildi.  
-   - **Parameter Store**: Veritabanı bağlantı bilgileri için güvenli bir ortam sağlandı.  
-   - **Route 53**: Özel domain adı oluşturularak kullanıcı deneyimi geliştirildi.  
+2. **Service:** İş mantığının uygulandığı katmandır. Veri işlemleri için Repository katmanını kullanır.
 
----
+3. **DAO / Repository:** Veritabanı ile doğrudan etkileşim kuran katmandır. Spring Data JPA (`JpaRepository`) kullanılır.
 
-## 2. Teknik Bilgiler (Technical Details)  
+4. **Entity:** Veritabanındaki `employee` tablosunu temsil eden model sınıfıdır.
 
-- **Backend**  
+## ☁️ AWS Entegrasyonu Detayı
 
-   - **Mimari**: RESTful API ile CRUD işlemleri.  
-   - IntelliJ IDEA üzerinde **Maven Lifecycle** kullanılarak aşağıdaki komutlar çalıştırıldı:  
-     - **Clean**: Derleme öncesi geçici dosyalar temizlendi.  
-     - **Package**: `target` klasöründe çalıştırılabilir `.jar` dosyası oluşturuldu.  
+Proje, `pom.xml` dosyasındaki **`spring-cloud-aws-starter-parameter-store`** bağımlılığını kullanarak veritabanı kimlik bilgilerini yerel konfigürasyon dosyaları yerine AWS'nin güvenli depolama hizmetinden çeker.
 
-   - **Çalışma Portu**:  
-     - **SERVER_PORT**: `5000`  
+```properties
+# Load Spring Data Source properties from AWS Parameter Store
+spring.config.import=aws-parameterstore:/config/employee-db
+```
 
-   - **Profil Ayarı**:  
-     - **SPRING_PROFILES_ACTIVE**: `prod`  
+## 🖼️ Ekran Görüntüsü
 
-   - **JDBC Properties**:  
-     ```properties  
-     spring.datasource.url=jdbc:mysql://<db-endpoint>:3306/<database-name>
-     spring.datasource.username=<username>
-     spring.datasource.password=<password>
-     ```  
-
-- **AWS Servis Konfigürasyonu**  
-
-   - **Elastic Beanstalk**:  
-     - **Environment Properties** ayarlandı:  
-       - **SPRING_DATASOURCE_URL**  
-       - **SPRING_DATASOURCE_USERNAME**  
-       - **SPRING_DATASOURCE_PASSWORD**  
-
-   - **Parameter Store**:  
-     - Veritabanı bağlantı bilgileri (URL, kullanıcı adı, şifre) oluşturuldu.  
-
-- **MySQL Workbench**:  
-   - Yerel olarak veritabanı oluşturuldu ve yapılandırıldı.  
-
----
-
-## 3. Kullanım (Usage)  
-
-- **Backend**  
-   - Maven Lifecycle kullanarak aşağıdaki komutlar çalıştırılır:  
-     ```  
-     mvn clean  
-     mvn package  
-     ```  
-   - `target` klasöründe oluşan `.jar` dosyası AWS Elastic Beanstalk platformuna deploy edilir.  
-
-- **AWS**  
-   - **RDS** üzerinde veritabanı oluşturuldu:  
-     - Kullanıcı adı: `<Your username>`  
-     - Şifre: `<Your password>`  
-   - **Elastic Beanstalk** kullanılarak uygulama canlıya alındı.  
-
----
-
-## 4. Öne Çıkan Özellikler (Key Features)  
-
-- Spring Boot 3 ile RESTful API geliştirme.  
-- MySQL veritabanı AWS RDS üzerinde barındırıldı.  
-- Elastic Beanstalk ile kolay ve ölçeklenebilir dağıtım.  
-- Parametre güvenliği için AWS Parameter Store kullanımı.  
-- Özel domain yönetimi için AWS Route 53 entegrasyonu.  
-
----
-
-## 5. Demo ve Ekran Görüntüleri (Demo & Screenshots)
+AWS ortamında canlıya alınan uygulamanın ekran görüntüsü:
 
 ![AWS Screenshot](./screenshot/amazon-web-services-ss-1.PNG)
 
----
+## 🛠️ Kurulum ve Çalıştırma
 
-## 6. Katkıda Bulunanlar ve Kaynaklar (Contributors & Resources)  
+### Gerekli Ön Koşullar
 
-- **Proje Sahibi**: [Batuhan Baysal](https://www.linkedin.com/in/batuhan-baysal-502656170/)  
+* Java Development Kit (JDK 17)
 
-- **Kaynaklar**:  
-   - Spring Boot Resmi Dokümantasyonu  
-   - AWS Resmi Dokümantasyonu  
-   - MySQL Workbench Kılavuzu  
+* Maven
 
----
+* MySQL Veritabanı (`employee_directory` şeması ile)
 
-## 7. İletişim ve Destek (Contact & Support)  
+* AWS hesabı ve Parameter Store'a konfigürasyon (veritabanı bilgileri) erişimi
 
-- **LinkedIn**: [Batuhan Baysal LinkedIn Profilim](https://www.linkedin.com/in/batuhan-baysal-502656170/) 
- 
-- **Github**: [Batuhan Baysal GitHub Profilim](https://github.com/BatuhanBaysal)  
+### 1. Veritabanı Kurulumu
+
+Proje veritabanını oluşturmak ve örnek verileri yüklemek için aşağıdaki SQL komutlarını kullanın (Bu komutlar proje dizininde yer alan `employee-directory-db-setup.sql` dosyasında da mevcuttur):
+
+```sql
+DROP USER if exists 'springstudent'@'%' ;
+
+CREATE USER 'springstudent'@'%' IDENTIFIED BY 'springstudent';
+
+GRANT ALL PRIVILEGES ON * . * TO 'springstudent'@'%';
+
+CREATE DATABASE  IF NOT EXISTS `employee_directory`;
+USE `employee_directory`;
+
+-- Diğer tablo oluşturma ve veri ekleme komutları...
+```
+
+### 2. AWS Parameter Store Konfigürasyonu
+
+AWS Parameter Store'da veritabanı bağlantısı için gerekli parametreleri (**`/config/employee-db`** yolu altında) ayarlayın.
+
+### 3. Projeyi Çalıştırma
+
+```bash
+# Projeyi derleyin
+mvn clean install
+
+# Uygulamayı başlatın
+mvn spring-boot:run
+```
+
+Uygulama başladığında otomatik olarak http://localhost:8080/employees/list adresine yönlenecektir.
